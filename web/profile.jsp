@@ -1,5 +1,10 @@
 <%@page import="com.tech.blog.entities.User" %>
 <%@page import="com.tech.blog.entities.Message" %>
+<%@page import="com.tech.blog.entities.Category" %>
+<%@page import="com.tech.blog.dao.PostDao" %>
+<%@page import="com.tech.blog.helper.ConnectionProvider" %>
+<%@page import="com.tech.blog.helper.ConnectionProvider" %>
+<%@page import="java.util.ArrayList" %>
 <%@page errorPage="error_page.jsp" %>
 
 <%
@@ -60,6 +65,9 @@
                     </ul>
 
                     <ul class="navbar-nav mr-right">
+                        <li class="nav-item">
+                            <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#add-post-modal"> <span class="fa fa-plus-circle me-1"> </span>New Post</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#profile-modal"> <span class="fa fa-user-circle"> </span>  <%= user.getName()%></a>
                         </li>
@@ -189,6 +197,60 @@
             </div>
         </div>
 
+        <!-- Add New Post Modal-->
+
+        <div class="modal fade" id="add-post-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header primary-background text-white">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Post</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="AddPostServlet" method="post">
+
+                            <select class="form-select mb-3" aria-label="Choose category of post">
+                                <option selected disabled>---Select Category---</option>
+
+                                <%
+                                    PostDao postDaoObj = new PostDao(ConnectionProvider.getConnection());
+                                    ArrayList<Category> allCategory = postDaoObj.getAllCategories();
+
+                                    for(Category c: allCategory)
+                                    {
+                                %>
+                                <option><%= c.getName()%></option>
+
+                                <%
+                                    }
+                                %>
+                            </select>
+
+                            <div class="form-group mb-2">
+                                <label class="form-label">Post Title</label>
+                                <input type="text" class="form-control" name="title" placeholder="Enter post title" />
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="form-label">Post Content</label>
+                                <textarea class="form-control" placeholder="Enter your content"  style="height: 200px"></textarea>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="form-label">Program</label>
+                                <textarea class="form-control" placeholder="Enter your program (if any)..."  style="height: 200px"></textarea>
+                            </div>
+                            <div class="form-group mb-2">
+                                <label class="form-label">Select Your Picture</label>
+                                <input type="file" class="form-control" placeholder="Enter your picture..." />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn primary-background text-white">Post</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!--JS-->
         <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
