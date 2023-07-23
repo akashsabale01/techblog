@@ -47,10 +47,17 @@ public class EditServlet extends HttpServlet {
             user.setPassword(userPassword);
             user.setAbout(userAbout);
             String oldFileName = user.getProfile(); // it will be used while deleting file
-            user.setProfile(imageName);
+            if (imageName.equals("")) {
+                // if file not given then use default image
+                user.setProfile(oldFileName);
+            } else {
+                // if file given then update image
+                user.setProfile(imageName);
+            }
 
-            System.out.println(oldFileName);
-            System.out.println(imageName);
+            System.out.println("old file name " + oldFileName);
+            System.out.println("new file name " + imageName);
+            System.out.println("new file name is empty " + imageName.isEmpty());
 
             // Update Database
             UserDao userDao = new UserDao(ConnectionProvider.getConnection());
@@ -68,6 +75,9 @@ public class EditServlet extends HttpServlet {
                 if (!oldFileName.equals("default.png")) {
                     Helper.deleteFile(oldFilePath);
                 }
+
+                System.out.println("old path " + oldFilePath);
+                System.out.println("new path " + path);
 
                 // Save new file
                 if (Helper.saveFile(part.getInputStream(), path)) {
