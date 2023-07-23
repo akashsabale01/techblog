@@ -37,7 +37,7 @@ public class EditServlet extends HttpServlet {
             String userPassword = request.getParameter("user_password");
             String userAbout = request.getParameter("user_about");
             Part part = request.getPart("image");
-            String imageName = part.getSubmittedFileName();
+            String newFileName = part.getSubmittedFileName();
 
             // Get user from session & update user object present in session
             HttpSession s = request.getSession();
@@ -47,52 +47,44 @@ public class EditServlet extends HttpServlet {
             user.setPassword(userPassword);
             user.setAbout(userAbout);
             String oldFileName = user.getProfile(); // it will be used while deleting file
-            if (imageName.equals("")) {
+
+            System.out.println("old file name " + oldFileName);
+            System.out.println("new file name " + newFileName);
+            System.out.println("new file name is empty " + newFileName.isEmpty());
+
+            if (newFileName.equals("")) {
                 // if file not given then use default image
                 user.setProfile(oldFileName);
             } else {
-                // if file given then update image
-                user.setProfile(imageName);
-            }
 
-            System.out.println("old file name " + oldFileName);
-            System.out.println("new file name " + imageName);
-            System.out.println("new file name is empty " + imageName.isEmpty());
-
-            // Update Database
-            UserDao userDao = new UserDao(ConnectionProvider.getConnection());
-            if (userDao.updateUser(user)) {
-                out.println("Updated to database");
-
-//                String path = request.getRealPath("/") + "pics" + File.separator + user.getProfile(); // deprecated
                 // Get new file path
-                String path = request.getSession().getServletContext().getRealPath("/") + "pics" + File.separator + user.getProfile();
+                String newPath = request.getSession().getServletContext().getRealPath("/") + "pics" + File.separator + newFileName;
 
                 // delete old file
                 String oldFilePath = request.getSession().getServletContext().getRealPath("/") + "pics" + File.separator + oldFileName;
-                // delete old profile photo file only when it is not default.png,
-                //because if default.png deleted, then it will raise error for other user's default profile image
-                if (!oldFileName.equals("default.png")) {
-                    Helper.deleteFile(oldFilePath);
-                }
+                Helper.deleteFile(oldFilePath);
+
+                Helper.saveFile(part.getInputStream(), newPath);
+
+                // if file given then update image
+                user.setProfile(newFileName);
 
                 System.out.println("old path " + oldFilePath);
-                System.out.println("new path " + path);
+                System.out.println("new path " + newPath);
 
-                // Save new file
-                if (Helper.saveFile(part.getInputStream(), path)) {
-                    out.println("Profile Updated...");
-                    Message msg = new Message("Profile Updated...", "success", "alert-success");
-                    s.setAttribute("msg", msg);
+            }
 
-                } else {
-                    out.println("Profile not saved successfully");
-                    Message msg = new Message("Profile not saved successfully...", "error", "alert-danger");
-                    s.setAttribute("msg", msg);
-                }
+            // Update Database
+            UserDao userDao = new UserDao(ConnectionProvider.getConnection());
+
+            if (userDao.updateUser(user)) {
+                out.println("Updated to database");
+                out.println("Profile Updated...");
+                Message msg = new Message("Profile Updated...", "success", "alert-success");
+                s.setAttribute("msg", msg);
 
             } else {
-                out.println("Not Updated...");
+                out.println("Profile Not Updated...");
                 Message msg = new Message("Something went wrong... Not updated to database", "error", "alert-danger");
                 s.setAttribute("msg", msg);
             }
