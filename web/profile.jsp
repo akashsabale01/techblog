@@ -3,7 +3,6 @@
 <%@page import="com.tech.blog.entities.Category" %>
 <%@page import="com.tech.blog.dao.PostDao" %>
 <%@page import="com.tech.blog.helper.ConnectionProvider" %>
-<%@page import="com.tech.blog.helper.ConnectionProvider" %>
 <%@page import="java.util.ArrayList" %>
 <%@page errorPage="error_page.jsp" %>
 
@@ -93,9 +92,44 @@
             }
         %>
 
-        <div class="container text-center mt-4">
-            <h1 class="display-3">This is Profile Page</h1>
-        </div>
+        <!--Main Body of page-->
+        <main>
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!--Loader-->
+                        <div class="container text-center" id="loader">
+                            <i class="fa fa-refresh fa-spin fa-4x"></i>
+                            <h3 class="mt-3">Loading Posts...</h3>
+                        </div>
+
+                        <!--Post-->
+                        <div class="container-fluid" id="post-container"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <!--Categories-->
+                        <div class="list-group">
+                            <a href="#" onclick="getPosts(0, this)" class ="c-link list-group-item list-group-item-action primary-background text-light" aria-current="true">
+                                <span class="fa fa-cubes me-1" ></span>
+                                All Categories
+                            </a>
+                            <%
+                                PostDao d = new PostDao(ConnectionProvider.getConnection());
+                                ArrayList<Category> lst = d.getAllCategories();
+
+                                for(Category cc: lst)
+                                {
+                            %>
+                            <a href="#" onclick="getPosts(<%= cc.getCid() %>, this)" class="c-link list-group-item list-group-item-action"><%= cc.getName()%></a>
+                            <%
+                                }
+                            %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
 
 
         <!--Profile Modal-->
@@ -258,32 +292,32 @@
         <script src="js/myjs.js" type="text/javascript"></script>
 
         <script>
-            $(document).ready(function () {
-                let isInEditMode = false;
+                                $(document).ready(function () {
+                                    let isInEditMode = false;
 
-                $("#edit-profile-btn").click(function () {
+                                    $("#edit-profile-btn").click(function () {
 
-                    // Toggle Logic
+                                        // Toggle Logic
 
-                    if (isInEditMode == false) {
-                        $("#profile-details").hide();
-                        $("#profile-edit").show();
-                        isInEditMode = true;
-                        $(this).text("Back");
+                                        if (isInEditMode == false) {
+                                            $("#profile-details").hide();
+                                            $("#profile-edit").show();
+                                            isInEditMode = true;
+                                            $(this).text("Back");
 //                        $(this).find('span').addClass("fa-reply");
 //                        $(this).find('span').toggleClass('fa-edit fa-reply');
 //                        $("#edit-btn-icon").removeClass("fa-edit").addClass("fa-reply");
-                    } else {
-                        // not in edit mode
-                        $("#profile-details").show();
-                        $("#profile-edit").hide();
-                        isInEditMode = false;
-                        $(this).text("Edit");
+                                        } else {
+                                            // not in edit mode
+                                            $("#profile-details").show();
+                                            $("#profile-edit").hide();
+                                            isInEditMode = false;
+                                            $(this).text("Edit");
 //                        $(this).find('span').toggleClass('fa-reply fa-edit ');
 //                        $(this).find('span').addClass("fa-edit");
-                    }
-                });
-            });
+                                        }
+                                    });
+                                });
 
         </script>
 
@@ -321,7 +355,38 @@
 
                 });
             });
+        </script>
 
+        <!--Loading Posts using ajax-->
+        <script>
+            function getPosts(catId, activeEleRef) {
+                $("#loader").show();
+                $("#post-container").hide();
+
+//                $(".c-link").removeClass("active");
+                $(".c-link").removeClass('primary-background text-light');
+
+                $.ajax({
+                    url: "load_posts.jsp",
+                    data: {cid: catId},
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(data);
+                        $("#loader").hide();
+                        $("#post-container").html(data);
+                        $("#loader").hide();
+                        $("#post-container").show();
+//                        $(activeEleRef).addClass('active');
+                        $(activeEleRef).addClass('primary-background text-light');
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(textStatus);
+                    }
+                });
+            }
+            $(document).ready(function () {
+                let allPostRef = $(".c-link")[0];
+                getPosts(0, allPostRef);
+            });
         </script>
 
     </body>

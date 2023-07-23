@@ -65,4 +65,72 @@ public class PostDao {
         return isPostSaved;
     }
 
+    public ArrayList<Post> getAllPosts() {
+        ArrayList<Post> allPosts = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM posts ORDER BY pid DESC";
+
+            PreparedStatement pstm = con.prepareStatement(query);
+
+            ResultSet postsSet = pstm.executeQuery();
+
+            while (postsSet.next()) {
+                // get data from postsSet
+                int pid = postsSet.getInt("pid");
+                String pTitle = postsSet.getString("pTitle");
+                String pContent = postsSet.getString("pContent");
+                String pCode = postsSet.getString("pCode");
+                String pPic = postsSet.getString("pPic");
+                Timestamp pDate = postsSet.getTimestamp("pDate");
+                int catId = postsSet.getInt("catId");
+                int userId = postsSet.getInt("userId");
+
+                Post pPost = new Post(pid, pTitle, pContent, pCode, pPic, pDate, catId, userId);
+
+                allPosts.add(pPost);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return allPosts;
+    }
+
+    public ArrayList<Post> getPostByCatId(int catId) {
+        ArrayList<Post> postOfSameCategory = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM posts WHERE catId=?";
+
+            PreparedStatement pstm = con.prepareStatement(query);
+            pstm.setInt(1, catId);
+
+            ResultSet postsSetOfSameCategory = pstm.executeQuery();
+
+            while (postsSetOfSameCategory.next()) {
+                // get data from postsSetOfSameCategory
+                int pid = postsSetOfSameCategory.getInt("pid");
+                String pTitle = postsSetOfSameCategory.getString("pTitle");
+                String pContent = postsSetOfSameCategory.getString("pContent");
+                String pCode = postsSetOfSameCategory.getString("pCode");
+                String pPic = postsSetOfSameCategory.getString("pPic");
+                Timestamp pDate = postsSetOfSameCategory.getTimestamp("pDate");
+                int userId = postsSetOfSameCategory.getInt("userId");
+
+                Post pPostOfSameCatId = new Post(pid, pTitle, pContent, pCode, pPic, pDate, catId, userId);
+
+                postOfSameCategory.add(pPostOfSameCatId);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return postOfSameCategory;
+    }
+
 }
