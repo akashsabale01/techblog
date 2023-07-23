@@ -1,4 +1,5 @@
 <%@page import="com.tech.blog.entities.User" %>
+<%@page import="com.tech.blog.entities.Message" %>
 <%@page errorPage="error_page.jsp" %>
 
 <%
@@ -30,12 +31,6 @@
         </style>
     </head>
     <body>
-        <!--        <h1>Profile</h1>
-                <h2><%= user.getName() %></h2>
-                <h2><%= user.getEmail() %></h2>
-                <h2><%= user.getAbout() %></h2>-->
-
-
         <nav class="navbar navbar-expand-lg navbar-dark primary-background">
             <div class="container-fluid">
                 <a class="navbar-brand" href="index.jsp"> <span class="fa fa-asterisk" ></span>  TechBlog</a>
@@ -76,9 +71,24 @@
             </div>
         </nav>
 
+
+        <%
+        Message m = (Message)session.getAttribute("msg");
+        if(m != null){
+        %>
+        <div class="alert <%= m.getCssClass()%> alert-dismissible fade show rounded-0" role="alert">
+            <%= m.getContent()%>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <%
+            session.removeAttribute("msg");
+            }
+        %>
+
         <div class="container text-center mt-4">
             <h1 class="display-3">This is Profile Page</h1>
         </div>
+
 
         <!--Profile Modal-->
 

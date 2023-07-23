@@ -1,8 +1,10 @@
 package com.tech.blog.servlets;
 
 import com.tech.blog.dao.UserDao;
+import com.tech.blog.entities.Message;
 import com.tech.blog.entities.User;
 import com.tech.blog.helper.ConnectionProvider;
+import com.tech.blog.helper.Helper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
+import java.io.File;
 
 @MultipartConfig
 public class EditServlet extends HttpServlet {
@@ -38,20 +41,53 @@ public class EditServlet extends HttpServlet {
 
             // Get user from session & update user object present in session
             HttpSession s = request.getSession();
-            User currUser = (User) s.getAttribute("currentUser");
-            currUser.setEmail(userEmail);
-            currUser.setName(userName);
-            currUser.setPassword(userPassword);
-            currUser.setAbout(userAbout);
-            currUser.setProfile(imageName);
+            User user = (User) s.getAttribute("currentUser");
+            user.setEmail(userEmail);
+            user.setName(userName);
+            user.setPassword(userPassword);
+            user.setAbout(userAbout);
+            String oldFileName = user.getProfile(); // it will be used while deleting file
+            user.setProfile(imageName);
+
+            System.out.println(oldFileName);
+            System.out.println(imageName);
 
             // Update Database
             UserDao userDao = new UserDao(ConnectionProvider.getConnection());
-            if (userDao.updateUser(currUser)) {
-                out.println("Updated to db");
+            if (userDao.updateUser(user)) {
+                out.println("Updated to database");
+
+//                String path = request.getRealPath("/") + "pics" + File.separator + user.getProfile(); // deprecated
+                // Get new file path
+                String path = request.getSession().getServletContext().getRealPath("/") + "pics" + File.separator + user.getProfile();
+
+                // delete old file
+                String oldFilePath = request.getSession().getServletContext().getRealPath("/") + "pics" + File.separator + oldFileName;
+                // delete old profile photo file only when it is not default.png,
+                //because if default.png deleted, then it will raise error for other user's default profile image
+                if (!oldFileName.equals("default.png")) {
+                    Helper.deleteFile(oldFilePath);
+                }
+
+                // Save new file
+                if (Helper.saveFile(part.getInputStream(), path)) {
+                    out.println("Profile Updated...");
+                    Message msg = new Message("Profile Updated...", "success", "alert-success");
+                    s.setAttribute("msg", msg);
+
+                } else {
+                    out.println("Profile not saved successfully");
+                    Message msg = new Message("Profile not saved successfully...", "error", "alert-danger");
+                    s.setAttribute("msg", msg);
+                }
+
             } else {
                 out.println("Not Updated...");
+                Message msg = new Message("Something went wrong... Not updated to database", "error", "alert-danger");
+                s.setAttribute("msg", msg);
             }
+
+            response.sendRedirect("profile.jsp");
 
             out.println("</body>");
             out.println("</html>");
