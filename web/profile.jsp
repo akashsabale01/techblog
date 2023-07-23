@@ -207,9 +207,9 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="AddPostServlet" method="post">
+                        <form id="add-post-form" action="AddPostServlet" method="post">
 
-                            <select class="form-select mb-3" aria-label="Choose category of post">
+                            <select class="form-select mb-3" name="cid" aria-label="Choose category of post">
                                 <option selected disabled>---Select Category---</option>
 
                                 <%
@@ -219,7 +219,7 @@
                                     for(Category c: allCategory)
                                     {
                                 %>
-                                <option><%= c.getName()%></option>
+                                <option value="<%= c.getCid()%>"><%= c.getName()%></option>
 
                                 <%
                                     }
@@ -228,25 +228,24 @@
 
                             <div class="form-group mb-2">
                                 <label class="form-label">Post Title</label>
-                                <input type="text" class="form-control" name="title" placeholder="Enter post title" />
+                                <input type="text" class="form-control" name="pTitle" placeholder="Enter post title" />
                             </div>
                             <div class="form-group mb-2">
                                 <label class="form-label">Post Content</label>
-                                <textarea class="form-control" placeholder="Enter your content"  style="height: 200px"></textarea>
+                                <textarea name="pContent"  class="form-control" placeholder="Enter your content"  style="height: 200px"></textarea>
                             </div>
                             <div class="form-group mb-2">
                                 <label class="form-label">Program</label>
-                                <textarea class="form-control" placeholder="Enter your program (if any)..."  style="height: 200px"></textarea>
+                                <textarea name="pCode" class="form-control" placeholder="Enter your program (if any)..."  style="height: 200px"></textarea>
                             </div>
                             <div class="form-group mb-2">
                                 <label class="form-label">Select Your Picture</label>
-                                <input type="file" class="form-control" placeholder="Enter your picture..." />
+                                <input name="pPic" type="file" class="form-control" placeholder="Enter your picture..." />
+                            </div>
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-lg primary-background text-white">Post</button>
                             </div>
                         </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn primary-background text-white">Post</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -255,6 +254,7 @@
         <!--JS-->
         <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="js/myjs.js" type="text/javascript"></script>
 
         <script>
@@ -281,12 +281,48 @@
                         $(this).text("Edit");
 //                        $(this).find('span').toggleClass('fa-reply fa-edit ');
 //                        $(this).find('span').addClass("fa-edit");
-
                     }
+                });
+            });
+
+        </script>
+
+        <!--Add new post js-->
+        <script>
+            $(document).ready(function () {
+                $('#add-post-form').on('submit', function (event) {
+                    // This code will executed after submitting form
+
+                    event.preventDefault();
+
+                    console.log("form submitted");
+
+                    let form = new FormData(this);
+
+                    // Send request to server
+                    $.ajax({
+                        url: "AddPostServlet",
+                        type: 'POST',
+                        data: form,
+                        success: function (data, textStatus, jqXHR) {
+                            if (data.trim() == "Post Saved Successfully") {
+                                swal({icon: "success", title: "Post Saved Successfully", button: "Ok"});
+                            } else {
+                                swal({icon: "error", title: "Someting went wrong! try again", button: "Ok"});
+                            }
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            swal({icon: "error", title: "Someting went wrong! try again", button: "Ok"});
+                        },
+                        processData: false,
+                        contentType: false
+                    });
 
                 });
             });
 
         </script>
+
     </body>
 </html>
