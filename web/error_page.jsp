@@ -21,7 +21,7 @@
         <div class="container text-center d-flex flex-column align-items-center mt-5">
             <img src="img/error.png" class="img-fluid w-25 h-25" alt="error"/>
             <h3 class="display-3 mt-2">Sorry! Something went wrong...</h3>
-            <h4 class="h4 text-body-secondary" ><%= exception%></h4>
+            <!--<h4 class="h4 text-body-secondary" ><%= exception%></h4>-->
             <a href="index.jsp" class="btn primary-background btn-lg text-white mt-3">Home</a>
 
         </div>
