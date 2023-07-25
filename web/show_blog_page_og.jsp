@@ -2,9 +2,14 @@
 <%@page import="com.tech.blog.entities.Message" %>
 <%@page import="com.tech.blog.entities.Category" %>
 <%@page import="com.tech.blog.dao.PostDao" %>
+<%@page import="com.tech.blog.dao.UserDao" %>
+<%@page import="com.tech.blog.dao.LikeDao" %>
+<%@page import="com.tech.blog.entities.Post" %>
 <%@page import="com.tech.blog.helper.ConnectionProvider" %>
 <%@page import="java.util.ArrayList" %>
-<%@page errorPage="error_page.jsp" %>
+<%@page import="java.text.DateFormat" %>
+<%@page errorPage="error_page.jsp"%>
+
 
 <%
     // Check whether user is logged in
@@ -16,12 +21,22 @@
     }
 %>
 
+<%
+    // get post id from current page url
+    int postId = Integer.parseInt(request.getParameter("post_id"));
+
+    PostDao d = new PostDao(ConnectionProvider.getConnection());
+    Post p = d.getPostByPostId(postId);
+
+%>
+
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Techblog | Profile</title>
+        <title>TechBlog | <%= p.getpTitle()%></title>
 
         <!--CSS-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -32,6 +47,23 @@
             .banner-background{
                 clip-path: polygon(50% 0%, 80% 0, 100% 0, 100% 93%, 73% 100%, 49% 95%, 24% 100%, 0 94%, 0 0, 20% 0);
             }
+            .post-title{
+                /*font-weight: 400;*/
+                font-size: 35px;
+            }
+
+            .post-content{
+                font-size: 20px;
+            }
+
+            .post-date{
+                /*font-style: italic;*/
+            }
+
+            .post-user-info{
+                font-size: 20px;
+            }
+
         </style>
     </head>
     <body>
@@ -44,7 +76,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="index.jsp"> <span class="fa fa-home" ></span> Home</a>
+                            <a href='profile.jsp' class="nav-link active" aria-current="page" href="index.jsp"> <span class="fa fa-home" ></span> Home</a>
                         </li>
 
                         <li class="nav-item dropdown">
@@ -78,10 +110,10 @@
             </div>
         </nav>
 
-
         <%
-        Message m = (Message)session.getAttribute("msg");
-        if(m != null){
+            Message m = (Message)session.getAttribute("msg");
+            if(m != null)
+            {
         %>
         <div class="alert <%= m.getCssClass()%> alert-dismissible fade show rounded-0" role="alert">
             <%= m.getContent()%>
@@ -92,45 +124,60 @@
             }
         %>
 
-        <!--Main Body of page-->
-        <main>
-            <div class="container mt-4">
-                <div class="row">
-                    <div class="col-md-8">
-                        <!--Loader-->
-                        <div class="container text-center" id="loader">
-                            <i class="fa fa-refresh fa-spin fa-4x"></i>
-                            <h3 class="mt-3">Loading Posts...</h3>
+        <!--Main Body-->
+
+        <div class="container">
+            <div class="row my-4">
+                <div class="col-md-10 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-header border-0 p-0" style="background: white;">
+                            <img src="blog_pics/<%= p.getpPic()%>" class="card-img-top mb-4" style="width: 100%; height: 60vh; object-fit: cover;" alt="blog photo">
+
+                            <h4 class="post-title text-center fw-bold mb-3"><%= p.getpTitle() %></h4>
+
+                            <div class="row text-center">
+                                <%
+                                    UserDao ud = new UserDao(ConnectionProvider.getConnection());
+                                    User postOfwhichuser = ud.getUserByUserId(p.getUserId());
+                                %>
+                                <div class="d-flex flex-col justify-content-center align-items-center">
+                                    <img class="img-thumbnail rounded-circle me-2" src="pics/<%= postOfwhichuser.getProfile()%>" style="width: 55px; height: 55px; object-fit: cover; margin-left: -22px; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);" alt="<%= user.getName()%> profile photo"/>
+                                    <div class="post-user-info fw-medium me-2 mb-0">
+                                        <a  class="text-primary" style="text-decoration: none">
+                                            <%= postOfwhichuser.getName() %>
+                                        </a>
+                                        <p class="post-date mb-0 text-start" style="font-size: 14px; font-weight: bold; text-align: start;">
+                                            <%= DateFormat.getDateInstance().format(p.getpDate())%>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <div class="card-body">
+                            <p class="post-content"><%= p.getpContent() %></p>
+                            <br/>
+                            <div class="post-code text-bg-light p-3 rounded">
+                                <pre ><%= p.getpCode()%></pre>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 pt-0" style="background: white;">
 
-                        <!--Post-->
-                        <div class="container-fluid" id="post-container"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <!--Categories-->
-                        <div class="list-group">
-                            <a href="#" onclick="getPosts(0, this)" class ="c-link list-group-item list-group-item-action primary-background text-light" aria-current="true">
-                                <span class="fa fa-cubes me-1" ></span>
-                                All Categories
-                            </a>
                             <%
-                                PostDao d = new PostDao(ConnectionProvider.getConnection());
-                                ArrayList<Category> lst = d.getAllCategories();
+                                LikeDao ld = new LikeDao(ConnectionProvider.getConnection());
+                            %>
 
-                                for(Category cc: lst)
-                                {
-                            %>
-                            <a href="#" onclick="getPosts(<%= cc.getCid() %>, this)" class="c-link list-group-item list-group-item-action"><%= cc.getName()%></a>
-                            <%
-                                }
-                            %>
+                            <a onclick="doLike(<%= p.getPid()%>, <%= user.getId()%>)" class="btn btn-outline-primary btn-sm"><i class="fa fa-thumbs-o-up"></i> <span class="like-counter-<%= p.getPid()%>"><%= ld.getCountOfLikeOnPost(p.getPid()) %></span></a>
+                            <a class="btn btn-outline-primary btn-sm"><i class="fa fa-commenting-o"></i> <span>20</span></a>
+                        </div>
+                        <div class="card-footer">
+                            <div id="fb-root"></div>
+                            <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v17.0" nonce="szkFOVGf"></script>
+                            <div class="fb-comments" data-href="http://localhost:9494/TechBlog/show_blog_page.jsp?post_id=<%= p.getPid()%>" data-width="" data-numposts="5"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-
-
+        </div>
 
         <!--Profile Modal-->
 
@@ -285,6 +332,7 @@
             </div>
         </div>
 
+
         <!--Footer-->
         <%@include file="normal_footer.jsp" %>
 
@@ -307,17 +355,17 @@
                                             $("#profile-edit").show();
                                             isInEditMode = true;
                                             $(this).text("Back");
-//                        $(this).find('span').addClass("fa-reply");
-//                        $(this).find('span').toggleClass('fa-edit fa-reply');
-//                        $("#edit-btn-icon").removeClass("fa-edit").addClass("fa-reply");
+                                            //                        $(this).find('span').addClass("fa-reply");
+                                            //                        $(this).find('span').toggleClass('fa-edit fa-reply');
+                                            //                        $("#edit-btn-icon").removeClass("fa-edit").addClass("fa-reply");
                                         } else {
                                             // not in edit mode
                                             $("#profile-details").show();
                                             $("#profile-edit").hide();
                                             isInEditMode = false;
                                             $(this).text("Edit");
-//                        $(this).find('span').toggleClass('fa-reply fa-edit ');
-//                        $(this).find('span').addClass("fa-edit");
+                                            //                        $(this).find('span').toggleClass('fa-reply fa-edit ');
+                                            //                        $(this).find('span').addClass("fa-edit");
                                         }
                                     });
                                 });
@@ -342,7 +390,7 @@
                         type: 'POST',
                         data: form,
                         success: function (data, textStatus, jqXHR) {
-                            if (data.trim() === "Post Saved Successfully") {
+                            if (data.trim() == "Post Saved Successfully") {
                                 swal({icon: "success", title: "Post Saved Successfully", button: "Ok"});
                             } else {
                                 swal({icon: "error", title: "Someting went wrong! try again", button: "Ok"});
@@ -366,19 +414,18 @@
                 $("#loader").show();
                 $("#post-container").hide();
 
-//                $(".c-link").removeClass("active");
+                //                $(".c-link").removeClass("active");
                 $(".c-link").removeClass('primary-background text-light');
 
                 $.ajax({
                     url: "load_posts_og.jsp",
                     data: {cid: catId},
                     success: function (data, textStatus, jqXHR) {
-//                        console.log(data);
                         $("#loader").hide();
                         $("#post-container").html(data);
                         $("#loader").hide();
                         $("#post-container").show();
-//                        $(activeEleRef).addClass('active');
+                        //                        $(activeEleRef).addClass('active');
                         $(activeEleRef).addClass('primary-background text-light');
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
@@ -391,6 +438,5 @@
                 getPosts(0, allPostRef);
             });
         </script>
-
     </body>
 </html>

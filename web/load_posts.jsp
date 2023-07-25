@@ -8,8 +8,6 @@
 <div class="row">
 
     <%
-        User userForLike = (User)session.getAttribute("currentUser");
-
         PostDao d = new PostDao(ConnectionProvider.getConnection());
         ArrayList<Post> posts = null;
 
@@ -31,7 +29,7 @@
         for(Post p: posts)
         {
     %>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-4 mb-3">
         <div class="card">
             <img src="blog_pics/<%= p.getpPic()%>" class="card-img-top" style="width: 100%; height: 30vh; object-fit: cover;" alt="blog photo">
             <div class="card-body">
@@ -46,37 +44,10 @@
                    white-space: pre-line;"><%= p.getpContent() %></p>
             </div>
             <div class="card-footer border-0 pt-0" style="background: white;">
-                <%
-                    LikeDao ld = new LikeDao(ConnectionProvider.getConnection());
-                %>
-                <a onclick="doLike(<%= p.getPid()%>, <%= userForLike.getId()%>)"
-                   class="btn btn-outline-primary btn-sm ">
-                    <i class="fa fa-thumbs-o-up"></i>
-                    <span class="like-counter-<%= p.getPid()%>"><%= ld.getCountOfLikeOnPost(p.getPid()) %></span>
-                </a>
                 <a href="show_blog_page.jsp?post_id=<%= p.getPid() %>" class="btn btn-outline-primary btn-sm mx-1">Read More...</a>
-                <a href="#" class="btn btn-outline-primary btn-sm"><i class="fa fa-commenting-o"></i> <span>20</span></a>
             </div>
         </div>
     </div>
-
-    <!--    <div class="col-md-12 mb-3">
-            <div class="card">
-                <div class="row g-0">
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <p class="fw-bold"><%= p.getpTitle() %></p>
-                            <p ><%= p.getpContent() %></p>
-                            <pre><%= p.getpCode() %></pre>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <img src="blog_pics/<%= p.getpPic()%>" class="img-fluid rounded-end" alt="...">
-                    </div>
-                </div>
-
-            </div>
-        </div>-->
 
     <%
         }
