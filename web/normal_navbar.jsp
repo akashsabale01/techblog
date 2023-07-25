@@ -24,6 +24,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#"> <span class="fa fa-address-card"></span>  Contact</a>
                 </li>
+            </ul>
+            <ul class="navbar-nav mr-right">
                 <li class="nav-item">
                     <a class="nav-link" href="login_page.jsp"> <span class="fa fa-user-circle"> </span>  Login</a>
                 </li>
@@ -31,10 +33,6 @@
                     <a class="nav-link" href="register_page.jsp"> <span class="fa fa-user-plus"> </span>  Sign Up</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
         </div>
     </div>
 </nav>

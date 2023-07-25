@@ -144,7 +144,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="container text-center">
-                            <img class="img-thumbnail rounded-circle w-25" src="pics/<%= user.getProfile()%>" alt="<%= user.getName()%> profile photo"/>
+                            <img class="img-thumbnail rounded-circle w-25" src="pics/<%= user.getProfile()%>" style="background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);" alt="<%= user.getName()%> profile photo"/>
 
                             <h1 class="modal-title fs-5" id="exampleModalLabel"><%= user.getName()%></h1>
                             <!--Details-->

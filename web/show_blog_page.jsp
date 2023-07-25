@@ -57,7 +57,7 @@
             }
 
             .post-date{
-                font-style: italic;
+                /*font-style: italic;*/
             }
 
             .post-user-info{
@@ -140,16 +140,16 @@
                                     UserDao ud = new UserDao(ConnectionProvider.getConnection());
                                     User postOfwhichuser = ud.getUserByUserId(p.getUserId());
                                 %>
-                                <div>
-                                    <div class="d-flex flex-col justify-content-center align-items-center">
-                                        <img class="img-thumbnail rounded-circle me-2" src="pics/<%= postOfwhichuser.getProfile()%>" style="width: 50px; height: 50px; object-fit: cover; margin-left: -22px;" alt="<%= user.getName()%> profile photo"/>
-                                        <p class="post-user-info fw-medium me-2 mb-0">
-                                            <a href="#" style="text-decoration: none">
-                                                <%= postOfwhichuser.getName() %>
-                                            </a>
+                                <div class="d-flex flex-col justify-content-center align-items-center">
+                                    <img class="img-thumbnail rounded-circle me-2" src="pics/<%= postOfwhichuser.getProfile()%>" style="width: 55px; height: 55px; object-fit: cover; margin-left: -22px; background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);" alt="<%= user.getName()%> profile photo"/>
+                                    <div class="post-user-info fw-medium me-2 mb-0">
+                                        <a href="#" style="text-decoration: none">
+                                            <%= postOfwhichuser.getName() %>
+                                        </a>
+                                        <p class="post-date mb-0 text-start" style="font-size: 14px; font-weight: bold; text-align: start;">
+                                            <%= DateFormat.getDateInstance().format(p.getpDate())%>
                                         </p>
                                     </div>
-                                    <p class="post-date mt-0 text-center"><%= DateFormat.getDateInstance().format(p.getpDate())%></p>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +191,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="container text-center">
-                            <img class="img-fluid rounded-circle w-25" src="pics/<%= user.getProfile()%>" alt="<%= user.getName()%> profile photo"/>
+                            <img class="img-thumbnail rounded-circle w-25" src="pics/<%= user.getProfile()%>" style="background: linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%);" alt="<%= user.getName()%> profile photo"/>
 
                             <h1 class="modal-title fs-5" id="exampleModalLabel"><%= user.getName()%></h1>
                             <!--Details-->
