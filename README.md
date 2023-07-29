@@ -13,6 +13,6 @@ The website incorporates key features such as:
 
 **Frontend:** HTML, CSS, jQuery
 
-**Backend:** Servlet, JSP, JDBC
+**Backend:** Java, Servlet, JSP, JDBC
 
 **Database:** MySQL
